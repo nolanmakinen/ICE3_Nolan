@@ -7,7 +7,6 @@ def validate_temperature(value):
             raise ValueError("Out-of-bound value detected.")  # Error for out-of-range values
         return temp  # Return valid temperature
     except ValueError:  # This will catch non-numeric and out-of-range errors
-        # Check if the value was actually an invalid number or an out-of-range value
         try:
             float(value)  # Try to convert again to check if it's numeric
         except ValueError:
@@ -24,10 +23,26 @@ def process_temperatures(temp_list):
         for temp in temp_list:
             valid_temps.append(validate_temperature(temp))  # Validate each input
     except ValueError as e:
-        return str(e)  # Return the error message (either "Invalid input detected" or "Out-of-bound value detected")
+        return str(e)
 
-    min_temp = min(valid_temps)
-    max_temp = max(valid_temps)
+    # Implement custom logic for min() and max()
+    min_temp = valid_temps[0]
+    max_temp = valid_temps[0]
+
+    # Find max_temp first
+    for temp in valid_temps[1:]:
+        if temp > max_temp:
+            max_temp = temp
+
+    # Find min_temp
+    min_temp = max_temp = valid_temps[0]  # Start with the first element
+
+    for temp in valid_temps[1:]:
+        if temp < min_temp:
+            min_temp = temp
+        if temp > max_temp:
+            max_temp = temp
+
     avg_temp = round(statistics.mean(valid_temps), 2)
 
     return f"Min: {min_temp}°C, Max: {max_temp}°C, Avg: {avg_temp}°C"

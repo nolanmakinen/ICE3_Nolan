@@ -1,25 +1,22 @@
-# test_temperature_sensor.py
+import unittest
+from ICE3.src.temperature_sensor import process_temperatures
 
-# Test Cases
-test_cases = [
-    # Boundary Value Analysis
-    [-50],           # Valid lower boundary
-    [150],           # Valid upper boundary
-    [-49, 149],      # Values inside range
+class TestTemperatureSensor(unittest.TestCase):
 
-    # Robustness Testing (Corrected to detect out-of-bounds)
-    [-60, 20, 160],  # Out-of-bound values (-60, 160) → Should return "Out-of-bound value detected."
-    [20, "abc", 30], # Contains invalid string ("abc") → Should return "Invalid input detected."
-    [10, "@", -40],  # Contains invalid character ("@") → Should return "Invalid input detected."
+    def test_boundary_values(self):
+        self.assertEqual(process_temperatures([-50]), "Min: -50.0°C, Max: -50.0°C, Avg: -50.0°C")
+        self.assertEqual(process_temperatures([150]), "Min: 150.0°C, Max: 150.0°C, Avg: 150.0°C")
+        self.assertEqual(process_temperatures([-49, 149]), "Min: -49.0°C, Max: 149.0°C, Avg: 50.0°C")
 
-    # Special Scenarios
-    [2**3 -1, -2**31],  # -2^31 is an invalid input → Should return "Out-of-bound value detected."
-    [50, 50, 50],       # All values the same → Should process normally
-    [],                 # Empty list (should return "No input provided.")
-]
+    def test_robustness(self):
+        self.assertEqual(process_temperatures([-60, 20, 160]), "Out-of-bound value detected.")
+        self.assertEqual(process_temperatures([20, "abc", 30]), "Invalid input detected.")
+        self.assertEqual(process_temperatures([10, "@", -40]), "Invalid input detected.")
 
-# Running the test cases
-for i, case in enumerate(test_cases, start=1):
-    print(f"Test Case {i}: {case}")
-    print(process_temperatures(case))
-    print("-" * 40)
+    def test_special_cases(self):
+        self.assertEqual(process_temperatures([2**3 - 1, -2**31]), "Out-of-bound value detected.")
+        self.assertEqual(process_temperatures([50, 50, 50]), "Min: 50.0°C, Max: 50.0°C, Avg: 50.0°C")
+        self.assertEqual(process_temperatures([]), "No input provided.")
+
+    def test_unsorted_valid_temperatures(self):
+        self.assertEqual(process_temperatures([30, 20, 10]),"Min: 10.0°C, Max: 30.0°C, Avg: 20.0°C")
